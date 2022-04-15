@@ -1,0 +1,32 @@
+@using Data.Models
+
+<div class="card-columns">
+    @foreach (var set in legoSet){
+        var cardClass = string.Empty;
+        var price = string.Empty;
+        @if(set.Acquired == "No"){
+           cardClass = "card text-white bg-warning mb-3";
+           price = set.Price;
+        } else {
+            cardClass = "card text-white bg-info mb-3";
+        }
+    <div class="@cardClass">
+        <img class="card-img-top" src="@set.Image">
+        <div class="card-body">
+            <h5 class="card-title">@set.SetNumber - @set.Description</h5>
+            <p class="card-text"><span class="emphasized">Pieces: </span>@set.Pieces</p>
+            <p class="card-text"><small class="text-muted"><span class="emphasized">Acquired: </span>@set.Acquired</small></p>
+            <small class="text-muted">@price</small>
+            <div class="card-footer bg-transparent">
+                <a href="@set.Link" target="_blank" class="btn btn-light">More info</a>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+
+@code {
+    [CascadingParameter]
+    public List<LegoSet> legoSet {get; set;}
+}

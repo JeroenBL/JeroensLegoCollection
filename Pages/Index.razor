@@ -1,0 +1,19 @@
+﻿@page "/"
+@using Data.Models
+@using Data.Services
+@inject LegoService _legoService
+
+<CascadingValue Value="@ownedLegoSet">
+        <BlazingLego.Components.LegoDisplay>
+        </BlazingLego.Components.LegoDisplay>
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public List<LegoSet> ownedLegoSet {get; set;}
+
+    protected override void OnInitialized()
+    {
+        ownedLegoSet = _legoService.GetOwnedLegoSets();
+    }
+}
