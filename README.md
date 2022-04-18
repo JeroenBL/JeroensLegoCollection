@@ -5,4 +5,3 @@
 - EFCore / Sqlite
 
 Blazor ServerSide project to manage my lego collection
-
