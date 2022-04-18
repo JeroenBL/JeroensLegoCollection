@@ -3,7 +3,7 @@
 
 @inject LegoService _legoService
 
-@if (id == null)
+@if (Id == null)
 {
     <div class="container text-center">
         <h3>Add new lego set</h3>
@@ -43,12 +43,28 @@ else
             <div class="form-group">
                 <label for="price">Price</label>
                 <InputText id="price" @bind-Value="@legoSet.Price" class="form-control" />
-            </div>  
-
-            <div class="form-group">
-                <label for="link">Link</label>
-                <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
             </div>
+            
+            @{
+                if (!string.IsNullOrEmpty(legoSet.Description) && (Id == null))
+                {
+                    string _baseUrl = "https://www.lego.com/en-nl/product";
+                    var url = $"{legoSet.Description.ToLower().Replace(" ", "-")}-{legoSet.SetNumber}";
+                    link = $"{_baseUrl}/{url}";
+                                      
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <InputText id="link" @bind-Value="@link" class="form-control" />
+                    </div>                    
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
+                    </div>
+                }
+            }
             
             <div class="form-group">
                 <label for="year-acquired">Year acquired</label>
@@ -77,13 +93,14 @@ else
     BlazoredModalInstance ModalInstance { get; set; }
 
     [Parameter] 
-    public int? id { get; set; }
+    public int? Id { get; set; }
 
     public bool onDisplay { get; set; }
     public string imageSource;
+    public string link;
 
     public LegoSet legoSet = new LegoSet();
-    
+
     private async Task SetLegoSet()
     {
         if(onDisplay == true)
@@ -94,14 +111,16 @@ else
         {
             legoSet.IsOnDisplay = "false";
         }
-        
-        if (id == null)
+
+        if (Id == null)
         {
+            legoSet.Image = $"/assets/{legoSet.SetNumber}.png";
+            legoSet.Link = link;
             _legoService.Create(legoSet);
         }
         else
         {
-            legoSet.Id = id.Value;
+            legoSet.Id = Id.Value;
             _legoService.Update(legoSet);
         }
         
@@ -110,9 +129,9 @@ else
     
     protected override async Task OnInitializedAsync()
     {
-        if (id != null)
+        if (Id != null)
         {
-            legoSet = _legoService.Get(id.Value);
+            legoSet = _legoService.Get(Id.Value);
             if (legoSet.IsOnDisplay == "true")
             {
                 onDisplay = true;

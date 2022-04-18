@@ -2,12 +2,12 @@
 @inject NavigationManager _navigationManager
 
 <div class="card-columns">
-    @if(isSetOnDisplay)
+    @if(IsSetOnDisplay)
     { 
         FilterSetsOnDisplay(); 
     }
 
-    @foreach (var set in legoSet){
+    @foreach (var set in LegoSet){
         var cardClass = string.Empty;
         var price = string.Empty;
         @if(set.Acquired == "No"){
@@ -35,17 +35,17 @@
 
 @code {
     [CascadingParameter]
-    public List<LegoSet> legoSet { get; set; }
+    public List<LegoSet> LegoSet { get; set; }
 
     [CascadingParameter]
-    public bool isSetOnDisplay { get; set; }
+    public bool IsSetOnDisplay { get; set; }
     
     [CascadingParameter] 
      IModalService Modal { get; set; }
 
     public void FilterSetsOnDisplay()
     {
-        legoSet = legoSet.Where(s => s.IsOnDisplay == "true").ToList();
+        LegoSet = LegoSet.Where(s => s.IsOnDisplay == "true").ToList();
     }
 
     private async Task EditLegoSet(int id)

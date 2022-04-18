@@ -1,2 +1,8 @@
 
 *.png
+src/lego.db
+src/lego.db-wal
+src/lego.db-shm
+src/lego.db
+*.db
+*.db-shm
