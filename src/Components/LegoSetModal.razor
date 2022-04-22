@@ -4,15 +4,24 @@
 @using Newtonsoft.Json
 
 @inject LegoService _legoService
-@inject IHttpClientFactory _httpClientFactory;
 @inject NavigationManager _navigationManager;
+@inject IHttpClientFactory _httpClientFactory;
+@inject IJSRuntime _jsRuntime;
+@inject IToastService _toastService;
 
 @if (Id == null)
 {
     <div class="container text-center">
         <h3>Add new lego set</h3>
     </div>
-    imageSource = "https://img.bricklink.com/ItemImage/SN/0/10268-1.png";
+    if (string.IsNullOrEmpty(legoSet.Description))
+    {
+        imageSource = "";
+    }
+    else
+    {
+        imageSource = $"https://img.bricklink.com/ItemImage/SN/0/{legoSet.SetNumber}-1.png";
+    }
 }
 else
 {
@@ -28,17 +37,16 @@ else
             <img src="@imageSource" class="rounded mx-auto d-block" width="100">
         </div>
         <EditForm Model="@legoSet">
-
             <div class="form-group">
                 <label for="setnumber">Set number</label>
-                <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />
+                <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />                  
                 @{
                     if(string.IsNullOrEmpty(Id.ToString()))
                     {
                         <small id="formHelp" class="form-text text-muted">Enter the setNumber and click [Import data] to import all set details</small>
                     }
                 }
-            </div>
+            </div>            
 
             @{
                 if (!string.IsNullOrEmpty(legoSet.SetNumber) && (Id == null))
@@ -72,6 +80,7 @@ else
             <div class="form-group">
                 <label for="link">Url</label>
                 <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
+                <button type="button" class="btn btn-primary" @onclick="CopyTextToClipboard">Copy</button>
             </div>
 
             <div class="form-group">
@@ -152,25 +161,41 @@ else
 
     private async Task GetLegoSetFromApi(string setNumber)
     {
-        HttpClient httpClient = _httpClientFactory.CreateClient();
-        httpClient.BaseAddress = new Uri(_navigationManager.BaseUri);
-        var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}-1");
-        string jsonData = await response.Content.ReadAsStringAsync();
+        LegoSet legoSetData = new LegoSet();
+        try
+        {
+            HttpClient httpClient = _httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(_navigationManager.BaseUri);
+            var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}-1");
+            string jsonData = await response.Content.ReadAsStringAsync();
 
-        var legoSetData = JsonConvert.DeserializeObject<LegoSet>(jsonData);
-
-        SetLegoSetProperties(legoSetData);
+            legoSetData = JsonConvert.DeserializeObject<LegoSet>(jsonData);
+            if (legoSetData == null)
+            {
+                throw new Exception("No data found");
+            }
+            else
+            {
+                SetLegoSetProperties(legoSetData);   
+            }
+        } 
+        catch (Exception ex)
+        {
+            _toastService.ShowError($"Legoset with setnumber [{legoSet.SetNumber}] could not be found!");
+        }
     }
 
     private void SetLegoSetProperties(LegoSet set)
-    {
-        string _baseUrl = "https://www.lego.com/en-nl/product";
-        
+    {      
         legoSet.Description = set.Description;
-        var url = $"{legoSet.Description.ToLower().Replace(" ", "-")}-{legoSet.SetNumber}";
-        legoSet.Link = $"{_baseUrl}/{url}";                 
+        legoSet.Link = $"https://rebrickable.com/sets/{legoSet.SetNumber}-1";                 
         legoSet.TotalParts = set.TotalParts;
         legoSet.Image = $"https://img.bricklink.com/ItemImage/ON/0/{legoSet.SetNumber}-1.png";
         legoSet.YearReleased = set.YearReleased;
+    }
+
+    private async Task CopyTextToClipboard()
+    {
+        await _jsRuntime.InvokeVoidAsync("copyClipboard");
     }
 }

@@ -13,7 +13,7 @@ namespace BlazingLego.Controllers
     {
         // GET: api/<LegoSetController>
         [HttpGet("{setNumber}")]
-        public string Get(string setNumber)
+        public async Task<ActionResult<string>> Get(string setNumber)
         {
             return JsonConvert.SerializeObject(GetLegoSet(setNumber));
         }

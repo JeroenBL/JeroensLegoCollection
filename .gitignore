@@ -7,3 +7,4 @@ src/lego.db
 *.db
 *.db-shm
 src/legoSetDb.json
+src/lego.db-journal

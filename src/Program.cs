@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using BlazingLego.Data.Services;
 using Blazored.Modal;
 using BlazingLego.Data;
+using Blazored.Toast;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<LegoService>();
 builder.Services.AddBlazoredModal();
 builder.Services.AddHttpClient();
+builder.Services.AddBlazoredToast();
 
 var app = builder.Build();
 
