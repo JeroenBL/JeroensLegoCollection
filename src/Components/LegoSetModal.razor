@@ -1,21 +1,25 @@
 ﻿@using BlazingLego.Data.Models
 @using BlazingLego.Data.Services
+@using Microsoft.AspNetCore.Mvc
+@using Newtonsoft.Json
 
 @inject LegoService _legoService
+@inject IHttpClientFactory _httpClientFactory;
+@inject NavigationManager _navigationManager;
 
 @if (Id == null)
 {
     <div class="container text-center">
         <h3>Add new lego set</h3>
     </div>
-    imageSource = "/assets/mini.png";
+    imageSource = "https://img.bricklink.com/ItemImage/SN/0/10268-1.png";
 }
 else
 {
     <div class="container text-center">
         <h3>Edit lego set</h3>
     </div>
-    imageSource = "/assets/worker.png";
+    imageSource = $"https://img.bricklink.com/ItemImage/SN/0/{legoSet.SetNumber}-1.png";
 }
 
 <div class="container">
@@ -28,7 +32,22 @@ else
             <div class="form-group">
                 <label for="setnumber">Set number</label>
                 <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />
+                @{
+                    if(string.IsNullOrEmpty(Id.ToString()))
+                    {
+                        <small id="formHelp" class="form-text text-muted">Enter the setNumber and click [Import data] to import all set details</small>
+                    }
+                }
             </div>
+
+            @{
+                if (!string.IsNullOrEmpty(legoSet.SetNumber) && (Id == null))
+                {
+                    <button class="btn btn-primary" @onclick="(async () => await GetLegoSetFromApi(legoSet.SetNumber))">Import data</button>
+                }
+            }
+
+            <br />
 
             <div class="form-group">
                 <label for="description">Description</label>
@@ -37,38 +56,28 @@ else
 
             <div class="form-group">
                 <label for="pieces">Pieces</label>
-                <InputText id="pieces" @bind-Value="@legoSet.Pieces" class="form-control"/>
+                <InputText id="pieces" @bind-Value="@legoSet.TotalParts" class="form-control"/>
             </div>   
-            
+                       
             <div class="form-group">
-                <label for="price">Price</label>
-                <InputText id="price" @bind-Value="@legoSet.Price" class="form-control" />
+                <label for="year-released">Year released</label>
+                <InputText id="year-released" @bind-Value="@legoSet.YearReleased" class="form-control" />
             </div>
-            
-            @{
-                if (!string.IsNullOrEmpty(legoSet.Description) && (Id == null))
-                {
-                    string _baseUrl = "https://www.lego.com/en-nl/product";
-                    var url = $"{legoSet.Description.ToLower().Replace(" ", "-")}-{legoSet.SetNumber}";
-                    link = $"{_baseUrl}/{url}";
-                                      
-                    <div class="form-group">
-                        <label for="link">Link</label>
-                        <InputText id="link" @bind-Value="@link" class="form-control" />
-                    </div>                    
-                }
-                else
-                {
-                    <div class="form-group">
-                        <label for="link">Link</label>
-                        <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
-                    </div>
-                }
-            }
             
             <div class="form-group">
                 <label for="year-acquired">Year acquired</label>
-                <InputText id="year-acquired" @bind-Value="@legoSet.Acquired" class="form-control" />
+                <InputText id="year-acquired" @bind-Value="@legoSet.YearAcquired" class="form-control" />
+            </div>
+            
+            <div class="form-group">
+                <label for="link">Url</label>
+                <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price</label>
+                <InputText id="price" @bind-Value="@legoSet.Price" class="form-control" />
+                <small id="formHelp" class="form-text text-muted">Prices are not imported because they are subject to change</small>
             </div>
             
             <div class="form-check">
@@ -96,37 +105,11 @@ else
     public int? Id { get; set; }
 
     public bool onDisplay { get; set; }
+
     public string imageSource;
-    public string link;
 
     public LegoSet legoSet = new LegoSet();
 
-    private async Task SetLegoSet()
-    {
-        if(onDisplay == true)
-        {
-            legoSet.IsOnDisplay = "true";
-        }
-        else
-        {
-            legoSet.IsOnDisplay = "false";
-        }
-
-        if (Id == null)
-        {
-            legoSet.Image = $"/assets/{legoSet.SetNumber}.png";
-            legoSet.Link = link;
-            _legoService.Create(legoSet);
-        }
-        else
-        {
-            legoSet.Id = Id.Value;
-            _legoService.Update(legoSet);
-        }
-        
-        await ModalInstance.CloseAsync();
-    }
-    
     protected override async Task OnInitializedAsync()
     {
         if (Id != null)
@@ -141,5 +124,53 @@ else
                 onDisplay = false;
             }
         }
+    }
+
+    private async Task SetLegoSet()
+    {
+        if(onDisplay == true)
+        {
+            legoSet.IsOnDisplay = "true";
+        }
+        else
+        {
+            legoSet.IsOnDisplay = "false";
+        }
+
+        if (Id == null)
+        {
+            _legoService.Create(legoSet);
+        }
+        else
+        {
+            legoSet.Id = Id.Value;
+            _legoService.Update(legoSet);
+        }
+
+        await ModalInstance.CloseAsync();
+    }
+
+    private async Task GetLegoSetFromApi(string setNumber)
+    {
+        HttpClient httpClient = _httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri(_navigationManager.BaseUri);
+        var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}-1");
+        string jsonData = await response.Content.ReadAsStringAsync();
+
+        var legoSetData = JsonConvert.DeserializeObject<LegoSet>(jsonData);
+
+        SetLegoSetProperties(legoSetData);
+    }
+
+    private void SetLegoSetProperties(LegoSet set)
+    {
+        string _baseUrl = "https://www.lego.com/en-nl/product";
+        
+        legoSet.Description = set.Description;
+        var url = $"{legoSet.Description.ToLower().Replace(" ", "-")}-{legoSet.SetNumber}";
+        legoSet.Link = $"{_baseUrl}/{url}";                 
+        legoSet.TotalParts = set.TotalParts;
+        legoSet.Image = $"https://img.bricklink.com/ItemImage/ON/0/{legoSet.SetNumber}-1.png";
+        legoSet.YearReleased = set.YearReleased;
     }
 }

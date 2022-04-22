@@ -12,6 +12,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<LegoService>();
 builder.Services.AddBlazoredModal();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -31,5 +32,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapControllers();
 
 app.Run();

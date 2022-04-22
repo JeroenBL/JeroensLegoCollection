@@ -1,13 +1,26 @@
+using Newtonsoft.Json;
+using System;
+
 namespace BlazingLego.Data.Models;
 
-public class LegoSet {
+public class LegoSet
+{
     public int Id { get; set; }
+
+    [JsonProperty("set_num")]
     public string? SetNumber { get; set;}
-    public string? Description {get; set;}
+
+    [JsonProperty("name")]
+    public string? Description { get; set; }
     public string? Image {get; set;}
-    public string? Pieces {get; set;}
-    public string? Price {get; set;}
+
+    [JsonProperty("num_parts")]
+    public string? TotalParts {get; set;}
+    public string? Price { get; set; } = "€ 0.00";
     public string? Link {get; set;}
-    public string? Acquired { get; set; }
+    public string? YearAcquired { get; set; } = DateTime.Now.Year.ToString();
+    
+    [JsonProperty("year")]
+    public string? YearReleased { get; set; }
     public string? IsOnDisplay { get; set; }
 }

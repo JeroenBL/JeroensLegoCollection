@@ -6,3 +6,4 @@ src/lego.db-shm
 src/lego.db
 *.db
 *.db-shm
+src/legoSetDb.json
