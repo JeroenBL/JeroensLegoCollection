@@ -3,43 +3,58 @@
 @inherits LayoutComponentBase
 @inject NavigationManager _navigationManager
 
-<PageTitle>@title</PageTitle>
+<PageTitle></PageTitle>
 
 <CascadingValue Value=@IsSetOnDisplay>
-<BlazoredToasts Position="ToastPosition.BottomRight"
-                Timeout="20"
-                />
-                
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand">@title</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarScroll">
-      <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
-        <li class="nav-item">
-          <button type="button" class="btn btn-secondary" @onclick="(async () => await AddLegoSet())"><span class="oi oi-plus"></span>
-            Add Lego Set
-          </button>
-        </li>
-      </ul>
-      <form class="d-flex">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="IsSetOnDisplay" @onchange="eventArgs => { CheckBoxOnDisplay(eventArgs.Value); }">
-            <label class="form-check-label" for="IsSetOnDisplay">Show only on display</label>
-        </div> 
-      </form>
-    </div>
-  </div>
-</nav> 
-<div class="page">
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <CascadingValue Value=@SearchText>
+       
+        <BlazoredToasts Position="ToastPosition.BottomRight"
+                        Timeout="20"
+                        />
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid"> <a class="navbar-brand" href="#">Jeroen's lego collection</a> <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Home" @onclick="(async () => await GoHome())"><span class="oi oi-home"></span></button>  
+                        </a>                        
+                    </li>                    
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Add new set" @onclick="(async () => await AddLegoSet())"><span class="oi oi-plus"></span></button>  
+                        </a>                        
+                    </li>
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Wish list" @onclick="(async () => await ManageWishList())"><span class="oi oi-align-left"></span></button>  
+                        </a>
+                    </li>
+                    </ul>
+                    <form class="d-flex"> 
+                        <input class="form-control mr-2" type="search" placeholder="Search by description" @bind-value="@SearchText">
+                    </form>
+                    <li class="nav-item"> 
+                    </li>
+                    <form>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="IsSetOnDisplay" @onchange="eventArgs => { CheckBoxOnDisplay(eventArgs.Value); }">
+                            <label class="form-check-label" for="IsSetOnDisplay">Show only on display</label>         
+                        </div>   
+                    </form>
+
+                </div>
+            </div>
+        </nav>
+        <div class="page">
+            <main>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
+        </div>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -49,7 +64,7 @@
     [Parameter]
     public bool IsSetOnDisplay { get; set; }
 
-    string title = "Jeroen's lego collection";
+    public string SearchText { get; set; }  
 
     public void CheckBoxOnDisplay(object checkedValue)
     {
@@ -68,5 +83,15 @@
         var confirmationModal = Modal.Show<LegoSetModal>();
         var result = await confirmationModal.Result;
         _navigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    private async Task ManageWishList()
+    {
+        _navigationManager.NavigateTo("/wishlist");
+    }
+
+    private async Task GoHome()
+    {
+        _navigationManager.NavigateTo("/");
     }
 }
