@@ -8,13 +8,19 @@ namespace BlazingLego.Data.Services
     {
         public LegoSet GetLegoSet(string setNumber)
         {
-            var set = $"{setNumber}-1";
             var jsonLegoDataDb = ReadLegoSetDbFromJson();
             var legoSets = JsonConvert.DeserializeObject<List<LegoSet>>(jsonLegoDataDb);
 
-            var legoSet = legoSets.Where(s => s.SetNumber == set).FirstOrDefault();
+            var setOne = $"{setNumber}-1";
+            var setTwo = $"{setNumber}-2";
+            var setThree = $"{setNumber}-3";
+
+            LegoSet legoSet = legoSets.Where(s => s.SetNumber == setOne || 
+                                                  s.SetNumber == setTwo ||
+                                                  s.SetNumber == setThree).FirstOrDefault();
 
             return legoSet;
+
         }
 
         private string ReadLegoSetDbFromJson()
