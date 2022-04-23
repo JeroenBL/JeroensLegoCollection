@@ -1,0 +1,66 @@
+﻿@page "/wishlist"
+
+@using BlazingLego.Data.Models
+@using BlazingLego.Data.Services
+
+@inject LegoService _legoService
+@inject NavigationManager _navigationManager
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Image</th>
+      <th scope="col">Set number</th>
+      <th scope="col">Description</th>
+      <th scope="col">Total parts</th>
+      <th scope="col">Link</th>
+      <th scope="col">Year released</th>     
+    </tr>
+  </thead>
+  <tbody>
+    @if (!wishList.Any())
+    {
+        <tr>
+            <th scope="row" colspan="5">No lego sets are currently on your wish list</th>
+            </tr>
+        } 
+        else
+        {
+            foreach (var set in wishList)
+            {
+                 <tr @onclick="() => EditLegoSet(set.Id)" class="cursor-pointer">
+                    <th scope="row">@set.Id</th>
+                    <td><img src="@set.Image" width="100" class="img-thumbnail"/></td>
+                    <td>@set.SetNumber</td>
+                    <td>@set.Description</td>
+                    <td>@set.TotalParts</td>
+                    <td>@set.Link</td>
+                    <td>@set.YearReleased</td>
+                </tr>
+            }
+        }
+  </tbody>
+</table>
+
+
+@code {
+    [CascadingParameter] 
+    IModalService Modal { get; set; }    
+    
+    public List<LegoSet> wishList = new List<LegoSet>();
+
+    protected override void OnInitialized()
+    {
+        wishList = _legoService.ListAll().Where(l => l.YearAcquired == "").ToList();
+    }
+
+    private async Task EditLegoSet(int id)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("id", id);
+
+        var confirmationModal = Modal.Show<LegoSetModal>(null, parameters);
+        var result = await confirmationModal.Result;
+    }
+}
