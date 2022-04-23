@@ -10,7 +10,7 @@
     @foreach (var set in LegoSet){
         var cardClass = string.Empty;
         var price = string.Empty;
-        @if(set.YearAcquired == "No"){
+        @if(set.YearAcquired == ""){
            cardClass = "card text-white bg-warning mb-3";
            price = set.Price;
         } else {

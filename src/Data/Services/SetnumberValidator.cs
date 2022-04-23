@@ -12,7 +12,7 @@ namespace BlazingLego.Data.Services
             var set = JsonDataService.GetLegoSet(setnumber);
             if (set == null)
             {
-                return new ValidationResult($"{setnumber} is not a valid lego set number");
+                return new ValidationResult($"Set number: '{setnumber}' is not valid");
             }
             return ValidationResult.Success;
         }   

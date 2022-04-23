@@ -7,7 +7,7 @@ namespace BlazingLego.Data.Models;
 public class LegoSet
 {
     public int Id { get; set; }
-
+    [Required]
     [JsonProperty("set_num")]
     [SetnumberValidator]
     public string? SetNumber { get; set;}

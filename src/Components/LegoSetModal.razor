@@ -38,7 +38,7 @@
                 <label for="setnumber">Set number</label>
                 @if(Id == null)
                 {
-                    <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />
+                    <InputText id="setNumber" @bind-Value="@legoSet.SetNumber" class="form-control" placeholder="10221" required="" />
                     <small id="formHelp" class="form-text text-muted">The set number will be validated against all available lego sets</small>
                 }
                 else
@@ -72,14 +72,14 @@
             <br />
 
             <div class="form-group">
-                <label for="year-acquired">Year acquired</label>
-                <InputText id="year-acquired" @bind-Value="@legoSet.YearAcquired" class="form-control" />
+                <label class="col-form-label" for="year-acquired">Year acquired</label>
+                <InputText id="year-acquired" @bind-Value="@legoSet.YearAcquired" class="form-control"/>
                 <small id="formHelp" class="form-text text-muted">If left empty, the lego set will be placed on the wish list!</small>
             </div>
 
             <div class="form-group">
                 <label for="price">Price</label>
-                <InputText id="price" @bind-Value="@legoSet.Price" class="form-control" />
+                <InputText id="price" @bind-Value="@legoSet.Price" class="form-control"/>
             </div>
             
             <div class="form-check">
