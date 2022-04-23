@@ -1,93 +1,85 @@
-﻿@page "/legoset/add"
-
-@using BlazingLego.Data.Models
+﻿@using BlazingLego.Data.Models
 @using BlazingLego.Data.Services
 @using Microsoft.AspNetCore.Mvc
 @using Newtonsoft.Json
 
 @inject LegoService _legoService
 @inject NavigationManager _navigationManager;
-@inject IHttpClientFactory _httpClientFactory;
+@inject JsonDataService _jsonDataService;
 @inject IJSRuntime _jsRuntime;
 @inject IToastService _toastService;
 
-@if (Id == null)
-{
-    <div class="container text-center">
-        <h3>Add new lego set</h3>
-    </div>
-    if (string.IsNullOrEmpty(legoSet.Description))
+@{
+    var img = "";
+    if (Id == null)
     {
-        imageSource = "";
+        <div class="container text-center">
+            <h3>Add new lego set</h3>
+        </div>
     }
     else
     {
-        imageSource = $"https://img.bricklink.com/ItemImage/SN/0/{legoSet.SetNumber}-1.png";
+        <div class="container text-center">
+            <h3>Edit lego set</h3>
+        </div>
+        img = $"https://img.bricklink.com/ItemImage/SN/0/{legoSet.SetNumber}-1.png";
     }
-}
-else
-{
-    <div class="container text-center">
-        <h3>Edit lego set</h3>
-    </div>
-    imageSource = $"https://img.bricklink.com/ItemImage/SN/0/{legoSet.SetNumber}-1.png";
 }
 
 <div class="container">
     <div class="row">
         <div class="col">
-            <img src="@imageSource" class="rounded mx-auto d-block" width="100">
+            <img src="@img" class="rounded mx-auto d-block" width="100">
         </div>
-        <EditForm Model="@legoSet">
+        <EditForm Model="@legoSet" OnValidSubmit="HandleOnValidSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
             <div class="form-group">
                 <label for="setnumber">Set number</label>
-                <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" /> 
-                <ValidationMessage For="@(() => @legoSet.SetNumber)" />
+                @if(Id == null)
+                {
+                    <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />
+                    <small id="formHelp" class="form-text text-muted">The set number will be validated against all available lego sets</small>
+                }
+                else
+                {
+                    <div class="input-group-text">@legoSet.SetNumber</div>   
+                }
             </div>            
 
-            @{
-                if (!string.IsNullOrEmpty(legoSet.SetNumber) && (Id == null))
-                {
-                    <button class="btn btn-primary" @onclick="(async () => await GetLegoSetFromApi(legoSet.SetNumber))">Import set details</button>
-                    <br />
-                    <small id="formHelp" class="form-text text-muted">This will import the set details from the rebrickable database.</small>
-                }
-            }
+            @if(Id != null){
+                <div class="form-group">
+                    <label for="description">Description</label>
+                     <div class="input-group-text">@legoSet.Description</div>
+                </div>
 
+                <div class="form-group">
+                    <label for="pieces">Total parts</label>
+                    <div class="input-group-text">@legoSet.TotalParts</div>
+                </div>   
+                       
+                <div class="form-group">
+                    <label for="year-released">Year released</label>
+                    <div class="input-group-text">@legoSet.YearReleased</div>
+                </div>        
+            
+                <div class="form-group">
+                    <label for="link">Url</label>
+                    <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
+                    <button type="button" class="btn btn-primary" @onclick="CopyTextToClipboard">Copy</button>
+                </div>
+            }
             <br />
 
             <div class="form-group">
-                <label for="description">Description</label>
-                <InputText id="description" @bind-Value="@legoSet.Description" class="form-control" />
-            </div>
-
-            <div class="form-group">
-                <label for="pieces">Pieces</label>
-                <InputText id="pieces" @bind-Value="@legoSet.TotalParts" class="form-control"/>
-            </div>   
-                       
-            <div class="form-group">
-                <label for="year-released">Year released</label>
-                <InputText id="year-released" @bind-Value="@legoSet.YearReleased" class="form-control" />
-            </div>
-            
-            <div class="form-group">
                 <label for="year-acquired">Year acquired</label>
                 <InputText id="year-acquired" @bind-Value="@legoSet.YearAcquired" class="form-control" />
-            </div>
-            
-            <div class="form-group">
-                <label for="link">Url</label>
-                <InputText id="link" @bind-Value="@legoSet.Link" class="form-control" />
-                <button type="button" class="btn btn-primary" @onclick="CopyTextToClipboard">Copy</button>
+                <small id="formHelp" class="form-text text-muted">If left empty, the lego set will be placed on the wish list!</small>
             </div>
 
             <div class="form-group">
                 <label for="price">Price</label>
                 <InputText id="price" @bind-Value="@legoSet.Price" class="form-control" />
-                <small id="formHelp" class="form-text text-muted">Prices are not imported because they are subject to change</small>
             </div>
             
             <div class="form-check">
@@ -97,7 +89,7 @@ else
             
              <div class="row mt-3">
                 <div class="col text-center">
-                    <button type="submit" class="btn btn-primary" @onclick="(async () => await SetLegoSet())">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="button" class="btn btn-secondary" @onclick="(async () => await ModalInstance.CancelAsync())">Cancel</button>
                 </div>
             </div>
@@ -114,12 +106,7 @@ else
 
     public bool onDisplay { get; set; }
 
-    public string imageSource;
-
     public LegoSet legoSet = new LegoSet();
-
-    bool isError = false;
-    string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,8 +124,11 @@ else
         }
     }
 
-    private async Task SetLegoSet()
+    private async Task HandleOnValidSubmit()
     {
+        var jsonLegoData = _jsonDataService.GetLegoSet(legoSet.SetNumber);
+        SetLegoSetProperties(jsonLegoData); 
+
         if(onDisplay == true)
         {
             legoSet.IsOnDisplay = "true";
@@ -161,40 +151,12 @@ else
         await ModalInstance.CloseAsync();
     }
 
-    private async Task GetLegoSetFromApi(string setNumber)
-    {
-        LegoSet legoSetData = new LegoSet();
-        try
-        {
-            HttpClient httpClient = _httpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(_navigationManager.BaseUri);
-            var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}");
-            string jsonData = await response.Content.ReadAsStringAsync();
-
-            legoSetData = JsonConvert.DeserializeObject<LegoSet>(jsonData);
-            if (legoSetData == null)
-            {
-                throw new Exception("No data found");
-            }
-            else
-            {
-                SetLegoSetProperties(legoSetData);   
-            }
-        } 
-        catch (Exception ex)
-        {
-            isError = true;
-            errorMessage = "Legoset with setnumber [{legoSet.SetNumber}] could not be found!";
-            _toastService.ShowError($"Legoset with setnumber [{legoSet.SetNumber}] could not be found!");
-        }
-    }
-
     private void SetLegoSetProperties(LegoSet set)
     {      
         legoSet.Description = set.Description;
-        legoSet.Link = $"https://rebrickable.com/sets/{legoSet.SetNumber}-1";                 
+        legoSet.Link = $"https://rebrickable.com/sets/{set.SetNumber}";                 
         legoSet.TotalParts = set.TotalParts;
-        legoSet.Image = $"https://img.bricklink.com/ItemImage/ON/0/{legoSet.SetNumber}-1.png";
+        legoSet.Image = $"https://img.bricklink.com/ItemImage/ON/0/{set.SetNumber}.png";
         legoSet.YearReleased = set.YearReleased;
     }
 

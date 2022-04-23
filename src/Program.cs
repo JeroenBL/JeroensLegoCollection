@@ -12,8 +12,8 @@ builder.Services.AddEntityFrameworkSqlite().AddDbContext<ApplicationDbContext>()
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<LegoService>();
+builder.Services.AddScoped<JsonDataService>();
 builder.Services.AddBlazoredModal();
-builder.Services.AddHttpClient();
 builder.Services.AddBlazoredToast();
 
 var app = builder.Build();
@@ -34,6 +34,5 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.MapControllers();
 
 app.Run();
