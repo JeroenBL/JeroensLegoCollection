@@ -39,9 +39,12 @@ else
             <img src="@imageSource" class="rounded mx-auto d-block" width="100">
         </div>
         <EditForm Model="@legoSet">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
             <div class="form-group">
                 <label for="setnumber">Set number</label>
-                <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" />                  
+                <InputText id="title" @bind-Value="@legoSet.SetNumber" class="form-control" /> 
+                <ValidationMessage For="@(() => @legoSet.SetNumber)" />
             </div>            
 
             @{
@@ -115,6 +118,9 @@ else
 
     public LegoSet legoSet = new LegoSet();
 
+    bool isError = false;
+    string errorMessage = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         if (Id != null)
@@ -162,7 +168,7 @@ else
         {
             HttpClient httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(_navigationManager.BaseUri);
-            var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}-1");
+            var response = await httpClient.GetAsync($"/api/LegoSet/{setNumber}");
             string jsonData = await response.Content.ReadAsStringAsync();
 
             legoSetData = JsonConvert.DeserializeObject<LegoSet>(jsonData);
@@ -177,6 +183,8 @@ else
         } 
         catch (Exception ex)
         {
+            isError = true;
+            errorMessage = "Legoset with setnumber [{legoSet.SetNumber}] could not be found!";
             _toastService.ShowError($"Legoset with setnumber [{legoSet.SetNumber}] could not be found!");
         }
     }

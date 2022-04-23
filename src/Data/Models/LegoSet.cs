@@ -1,4 +1,6 @@
+using BlazingLego.Data.Services;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlazingLego.Data.Models;
 
@@ -7,6 +9,7 @@ public class LegoSet
     public int Id { get; set; }
 
     [JsonProperty("set_num")]
+    [SetnumberValidator]
     public string? SetNumber { get; set;}
 
     [JsonProperty("name")]
