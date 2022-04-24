@@ -4,11 +4,9 @@
 @inject LegoService _legoService
 
 <CascadingValue Value="@ownedLegoSet">
-    <CascadingValue Value=@IsSetOnDisplay>
-        <CascadingValue Value=@SearchText>
-            <BlazingLego.Components.LegoDisplayBetter>
-            </BlazingLego.Components.LegoDisplayBetter> 
-        </CascadingValue>
+    <CascadingValue Value=@SortOrder>
+        <BlazingLego.Components.LegoDisplayBetter>               
+        </BlazingLego.Components.LegoDisplayBetter> 
     </CascadingValue>
 </CascadingValue>
 
@@ -19,7 +17,7 @@
     public bool IsSetOnDisplay { get; set; }
 
     [CascadingParameter]
-    public string SearchText { get; set; }
+    public string SortOrder { get; set; }
 
     protected override async void OnInitialized()
     {
