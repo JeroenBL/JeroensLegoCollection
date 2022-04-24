@@ -3,24 +3,26 @@
 @using Data.Services
 @inject LegoService _legoService
 
-<CascadingValue Value="@ownedLegoSet">
-    <CascadingValue Value=@SortOrder>
-        <BlazingLego.Components.LegoDisplayBetter>               
-        </BlazingLego.Components.LegoDisplayBetter> 
+<CascadingValue Value="@LegoSets">
+    <CascadingValue Value=@IsSetOnDisplay>
+        <CascadingValue Value=@SearchText>
+            <BlazingLego.Components.LegoDisplayBetter>
+            </BlazingLego.Components.LegoDisplayBetter> 
+        </CascadingValue>     
     </CascadingValue>
 </CascadingValue>
 
 @code {
-    public List<LegoSet> ownedLegoSet = new List<LegoSet>();
+    public List<LegoSet> LegoSets = new List<LegoSet>();
 
     [CascadingParameter]
     public bool IsSetOnDisplay { get; set; }
 
     [CascadingParameter]
-    public string SortOrder { get; set; }
+    public string SearchText { get; set; }
 
     protected override async void OnInitialized()
     {
-        ownedLegoSet = _legoService.ListAll().OrderByDescending(l => l.YearAcquired).ToList();
+        LegoSets = _legoService.ListAll().OrderByDescending(l => l.YearAcquired).ToList();
     }
 }

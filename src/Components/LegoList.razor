@@ -1,4 +1,4 @@
-﻿@page "/wishlist"
+﻿@page "/list/{Type}"
 
 @using BlazingLego.Data.Models
 @using BlazingLego.Data.Services
@@ -7,6 +7,11 @@
 @inject NavigationManager _navigationManager
 @inject IToastService _toastService
 
+<nav class="navbar navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+  </div>
+</nav>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -51,12 +56,23 @@
 @code {
     [CascadingParameter] 
     IModalService Modal { get; set; }  
-      
+
+    [Parameter]
+    public string Type { get; set; }
+
     public List<LegoSet> wishList = new List<LegoSet>();
 
     protected override void OnInitialized()
     {
-        wishList = _legoService.ListAll().Where(l => l.YearAcquired == "").ToList();
+        if(Type == "wish")
+        {
+            wishList = _legoService.ListAll().Where(l => l.YearAcquired == "").ToList();   
+        }
+
+        if(Type == "all")
+        {
+            wishList = _legoService.ListAll();
+        }
     }
     
     private async Task ShowConfirmationModal(int id)
@@ -70,7 +86,7 @@
         if (!result.Cancelled)
         {
             _toastService.ShowSuccess("lego set has been deleted!", "Success!");
-            _navigationManager.NavigateTo("/wishlist", true);
+            _navigationManager.NavigateTo("/list/wish", true);
         }
     }
 

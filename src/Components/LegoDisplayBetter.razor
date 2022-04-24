@@ -1,22 +1,22 @@
 ﻿@using BlazingLego.Data.Models
 
 @inject NavigationManager _navigationManager
-
+<nav class="navbar navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+  </div>
+</nav>
 <div class="container">
-    @if(SortOrder == "asc")
-    {
-        FilterSetsOnDisplay("asc");
+    @if(IsSetOnDisplay)
+    { 
+        FilterSetsOnDisplay(); 
     }
-    @if(SortOrder == "desc")
+
+    @if(!string.IsNullOrEmpty(SearchText))
     {
-        FilterSetsOnDisplay("desc");
+        FilterSearchText(SearchText);
     }
-    @if(SortOrder == "onDisplay")
-    {
-        FilterSetsOnDisplay("onDisplay");
-    }    
-    
-    
+   
     <div class="row gy-3">
         @foreach (var set in LegoSet)
         {
@@ -50,29 +50,27 @@
     public List<LegoSet> LegoSet { get; set; }
 
     [CascadingParameter]
-    public string SortOrder { get; set; } = "ShowAll";
+    public bool IsSetOnDisplay { get; set; }
+
+    [CascadingParameter]
+    public string SearchText { get; set; }
 
     [CascadingParameter] 
     IModalService Modal { get; set; }
 
-    public void FilterSetsOnDisplay(string order)
+    public void Search(string searchText)
     {
-        if (order == "asc")
-        {
-            LegoSet = LegoSet.Where(s => s.YearAcquired.Length > 0).OrderBy(x => x.YearAcquired).ToList();
-        }
-        if (order == "desc")
-        {
-            LegoSet = LegoSet.OrderByDescending(x => x.YearAcquired).ToList();
-        }
-        if (order == "onDisplay")
-        {
-            LegoSet = LegoSet.Where(s => s.IsOnDisplay == "true").ToList();
-        }
-        else
-        {
-            LegoSet = LegoSet.ToList();
-        }
+        LegoSet = LegoSet.Where(s => s.SetNumber == searchText).ToList();
+    }
+
+    public void FilterSetsOnDisplay()
+    {
+        LegoSet = LegoSet.Where(s => s.IsOnDisplay == "true").ToList();
+    }
+
+    public void FilterSearchText(string searchText)
+    {
+        LegoSet = LegoSet.Where(s => s.Description.Contains(searchText) || s.SetNumber.Contains(searchText)).ToList();
     }
 
     private async Task EditLegoSet(int id)
@@ -82,5 +80,5 @@
 
         var confirmationModal = Modal.Show<LegoSetModal>(null, parameters);
         var result = await confirmationModal.Result;
-    }  
+    }
 }
