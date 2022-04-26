@@ -11,12 +11,7 @@
     { 
         FilterSetsOnDisplay(); 
     }
-
-    @if(!string.IsNullOrEmpty(SearchText))
-    {
-        FilterSearchText(SearchText);
-    }
-   
+  
     <div class="row gy-3">
         @foreach (var set in LegoSet)
         {
@@ -51,9 +46,6 @@
 
     [CascadingParameter]
     public bool IsSetOnDisplay { get; set; }
-
-    [CascadingParameter]
-    public string SearchText { get; set; }
 
     [CascadingParameter] 
     IModalService Modal { get; set; }

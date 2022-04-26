@@ -5,10 +5,8 @@
 
 <CascadingValue Value="@LegoSets">
     <CascadingValue Value=@IsSetOnDisplay>
-        <CascadingValue Value=@SearchText>
-            <BlazingLego.Components.LegoDisplayBetter>
-            </BlazingLego.Components.LegoDisplayBetter> 
-        </CascadingValue>     
+        <BlazingLego.Components.LegoDisplayBetter>
+        </BlazingLego.Components.LegoDisplayBetter> 
     </CascadingValue>
 </CascadingValue>
 
@@ -17,9 +15,6 @@
 
     [CascadingParameter]
     public bool IsSetOnDisplay { get; set; }
-
-    [CascadingParameter]
-    public string SearchText { get; set; }
 
     protected override async void OnInitialized()
     {
