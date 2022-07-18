@@ -11,6 +11,10 @@
     { 
         FilterSetsOnDisplay(); 
     }
+    @if(!string.IsNullOrEmpty(SearchString))
+    {
+        FilterSearchText(SearchString);
+    }
   
     <div class="row gy-3">
         @foreach (var set in LegoSet)
@@ -47,13 +51,11 @@
     [CascadingParameter]
     public bool IsSetOnDisplay { get; set; }
 
+    [CascadingParameter]
+    public string SearchString { get; set; }
+
     [CascadingParameter] 
     IModalService Modal { get; set; }
-
-    public void Search(string searchText)
-    {
-        LegoSet = LegoSet.Where(s => s.SetNumber == searchText).ToList();
-    }
 
     public void FilterSetsOnDisplay()
     {
@@ -62,7 +64,7 @@
 
     public void FilterSearchText(string searchText)
     {
-        LegoSet = LegoSet.Where(s => s.Description.Contains(searchText) || s.SetNumber.Contains(searchText)).ToList();
+        LegoSet = LegoSet.Where(s => s.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase) || s.SetNumber.Contains(searchText)).ToList();
     }
 
     private async Task EditLegoSet(int id)

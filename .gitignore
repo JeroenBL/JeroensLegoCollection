@@ -8,3 +8,4 @@ src/lego.db
 *.db-shm
 src/legoSetDb.json
 src/lego.db-journal
+src/legoSetDbOLD.json

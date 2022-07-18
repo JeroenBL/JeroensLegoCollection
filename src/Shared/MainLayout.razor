@@ -1,56 +1,62 @@
 ﻿@using BlazingLego.Components
 @using Blazored.Toast.Configuration
+
 @inherits LayoutComponentBase
 @inject NavigationManager _navigationManager
 
 <PageTitle></PageTitle>
 
 <CascadingValue Value=@IsSetOnDisplay>
+    <CascadingValue Value="@SearchString">
      <BlazoredToasts Position="ToastPosition.BottomRight"
                     Timeout="20"
                     />
-
-    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
-        <div class="container-fluid"> <a class="navbar-brand" href="#">Jeroen's lego collection</a> <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-                <li class="nav-item"> 
-                    <a class="nav-link" 
-                        <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Home" @onclick="(async () => await GoHome())"><span class="oi oi-home"></span></button>  
-                    </a>                        
-                </li>                    
-                <li class="nav-item"> 
-                    <a class="nav-link" 
-                        <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Add new set" @onclick="(async () => await AddLegoSet())"><span class="oi oi-plus"></span></button>  
-                    </a>                        
-                </li>
-                <li class="nav-item"> 
-                    <a class="nav-link" 
-                        <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Wish list" @onclick="(async () => await ManageWishList())"><span class="oi oi-list-rich"></span></button>  
-                    </a>
-                </li>
-                <li class="nav-item"> 
-                    <a class="nav-link" 
-                        <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="All sets" @onclick="(async () => await ViewAllSets())"><span class="oi oi-list"></span></button>  
-                    </a>
-                </li>                    
-                </ul>
-                <form>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="IsSetOnDisplay" @onchange='eventArgs => { CheckBoxOnDisplay(eventArgs.Value, "OnDisplay"); }'>
-                        <label class="form-check-label" for="IsSetOnDisplay">Show only on display</label>         
-                    </div>                       
-                </form>
+                    
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+            <div class="container-fluid"> 
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Home" @onclick="(async () => await GoHome())"><span class="oi oi-home"></span></button>  
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Add new set" @onclick="(async () => await AddLegoSet())"><span class="oi oi-plus"></span></button>  
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Wish list" @onclick="(async () => await ManageWishList())"><span class="oi oi-list-rich"></span></button>  
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a class="nav-link" 
+                            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="All sets" @onclick="(async () => await ViewAllSets())"><span class="oi oi-list"></span></button>  
+                        </a>
+                    </li>
+                    </ul>
+                    <form class="d-flex" role="checkbox">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="IsSetOnDisplay" data-toggle="tooltip" data-placement="top" title="Filter sets on display" @onchange='eventArgs => { CheckBoxOnDisplay(eventArgs.Value, "OnDisplay"); }'>
+                        </div>
+                    </form>
+                    <br />
+                    <form class="d-flex" role="search">
+                      <input class="form-control me-2" type="search" @bind-value="SearchString" placeholder="Search" aria-label="Search">
+                    </form>
+                </div>
             </div>
+        </nav>
+        <div class="page">
+            <main>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
-    </nav>
-    <div class="page">
-        <main>
-            <article class="content px-4">
-                @Body
-            </article>
-        </main>
-    </div>
+    </CascadingValue>
 </CascadingValue>
 
 @code {
@@ -58,7 +64,9 @@
     IModalService Modal { get; set; }
 
     public bool IsSetOnDisplay { get; set; }
-   
+
+    public string SearchString;
+
     public void CheckBoxOnDisplay(object checkedValue, string order)
     {
         if ((bool)checkedValue && order == "OnDisplay")
