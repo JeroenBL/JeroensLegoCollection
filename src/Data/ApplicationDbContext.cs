@@ -9,7 +9,9 @@ namespace BlazingLego.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=lego.db");
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var conn = $@"Data Source={baseDir}\\lego.db";
+            optionsBuilder.UseSqlite(conn);
         }
     }
 }
